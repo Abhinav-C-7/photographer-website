@@ -72,10 +72,13 @@ import { url } from '../lib/site';
   .hero__controls button:hover { background: #fff; color: var(--charcoal); }
 
   @media (max-width: 900px) {
-    .hero { grid-template-columns: 1fr; align-items: end; padding-bottom: 120px; }
+    .hero { grid-template-columns: 1fr; align-items: start; padding-top: 112px; }
     .hero__copy, .hero__quote { grid-column: 1; max-width: none; }
     .hero__quote { display: none; }
-    .hero__shade { background: linear-gradient(0deg, rgba(30,22,14,.7), rgba(30,22,14,.15) 70%); }
+    .hero__eyebrow { margin-bottom: 18px; }
+    h1 { font-size: 31px; }
+    .hero__text { font-size: 13px; margin-bottom: 24px; }
+    .hero__shade { background: linear-gradient(180deg, rgba(30,22,14,.62), rgba(30,22,14,.12) 58%, rgba(30,22,14,.35)); }
     .hero__controls { left: var(--gutter); right: auto; bottom: 36px; }
   }
 </style>
