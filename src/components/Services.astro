@@ -1,0 +1,38 @@
+---
+const services = [
+  { title: 'Wedding day', text: 'Full-day coverage from the first preparations to the last dance, with a calm, unobtrusive approach.' },
+  { title: 'Pre-wedding & engagement', text: 'A relaxed session before the big day, so you feel at ease in front of the camera.' },
+  { title: 'Albums & prints', text: 'Beautifully made keepsakes, designed with you so the story is told in the right order.' },
+];
+---
+<section class="services" id="services" aria-labelledby="services-title">
+  <div class="wrap">
+    <div class="services__head">
+      <span class="index" aria-hidden="true">03</span>
+      <h2 id="services-title">Services.</h2>
+    </div>
+    <ol class="services__list">
+      {services.map((s, i) => (
+        <li>
+          <span class="services__n">{String(i + 1).padStart(2, '0')}</span>
+          <h3>{s.title}</h3>
+          <p>{s.text}</p>
+        </li>
+      ))}
+    </ol>
+    <p class="services__note">Investment is shared personally once I know about your day.</p>
+  </div>
+</section>
+
+<style>
+  .services { padding: clamp(60px, 9vw, 120px) 0; background: #f6f1ea; }
+  .services__head { display: flex; align-items: center; gap: 28px; margin-bottom: 56px; }
+  h2 { font-size: clamp(38px, 5vw, 56px); }
+  .services__list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(24px, 4vw, 64px); }
+  .services__list li { border-top: 1px solid var(--ink); padding-top: 22px; }
+  .services__n { font: 400 13px/1 var(--serif); color: var(--ochre); }
+  h3 { font-size: 24px; margin: 14px 0 12px; }
+  .services__list p { color: var(--muted); max-width: 340px; }
+  .services__note { margin-top: 52px; font-size: 13px; color: var(--muted); }
+  @media (max-width: 760px) { .services__list { grid-template-columns: 1fr; } }
+</style>

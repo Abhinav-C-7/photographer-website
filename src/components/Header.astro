@@ -1,0 +1,82 @@
+---
+import { site } from '../data/site';
+import { url } from '../lib/site';
+
+interface Props { tone?: 'light' | 'dark' }
+const { tone = 'dark' } = Astro.props;
+---
+<header class:list={['header', `header--${tone}`]} data-header>
+  <nav class="header__nav" aria-label="Primary">
+    <a href={url('/#about')}>About</a>
+    <a href={url('/#gallery')}>Gallery</a>
+    <a href={url('/#services')}>Services</a>
+    <a href={url('/#contact')}>Contact</a>
+  </nav>
+  <a class="header__logo" href={url('/')} aria-label={`${site.name} home`}>{site.name}</a>
+  <a class="header__cta" href={url('/#contact')}>Check your date</a>
+  <button class="header__menu" type="button" aria-expanded="false" aria-controls="mobile-nav" data-menu>
+    Menu
+  </button>
+  <div class="header__panel" id="mobile-nav" hidden data-panel>
+    <a href={url('/#about')}>About</a>
+    <a href={url('/#gallery')}>Gallery</a>
+    <a href={url('/#services')}>Services</a>
+    <a href={url('/#contact')}>Contact</a>
+  </div>
+</header>
+
+<style>
+  .header {
+    position: absolute; inset: 0 0 auto 0; z-index: 10;
+    display: grid; grid-template-columns: 1fr auto 1fr; align-items: center;
+    padding: 28px var(--gutter);
+    font: 400 12px/1 var(--sans);
+    letter-spacing: .04em;
+  }
+  .header--light { color: #fff; }
+  .header--dark { color: var(--ink); }
+  .header__nav { display: flex; gap: 32px; }
+  .header a { text-decoration: none; }
+  .header__nav a, .header__cta { position: relative; padding-block: 6px; }
+  .header__nav a::after, .header__cta::after {
+    content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 1px;
+    background: currentColor; transform: scaleX(0); transform-origin: left; transition: transform .3s;
+  }
+  .header__nav a:hover::after, .header__cta:hover::after { transform: scaleX(1); }
+  .header__logo { font: 400 25px/1 var(--serif); letter-spacing: .01em; }
+  .header--light .header__logo { color: #fff; }
+  .header--dark .header__logo { color: var(--olive); }
+  .header__cta { justify-self: end; }
+  .header__menu { display: none; justify-self: end; background: none; border: 0; color: inherit; font: inherit; cursor: pointer; }
+  .header__panel { grid-column: 1 / -1; display: flex; flex-direction: column; gap: 18px; padding: 24px 0 8px; font-size: 15px; }
+  .header__panel[hidden] { display: none; }
+
+  @media (max-width: 760px) {
+    .header { grid-template-columns: 1fr auto; }
+    .header__nav, .header__cta { display: none; }
+    .header__logo { grid-row: 1; grid-column: 1; }
+    .header__menu { display: block; grid-row: 1; grid-column: 2; }
+    .header--light:has([data-panel]:not([hidden])) { color: var(--ink); background: var(--bg); }
+    .header--light:has([data-panel]:not([hidden])) .header__logo { color: var(--olive); }
+  }
+  @media (min-width: 761px) { .header__panel { display: none !important; } }
+</style>
+
+<script>
+  const header = document.querySelector<HTMLElement>('[data-header]');
+  const button = header?.querySelector<HTMLButtonElement>('[data-menu]');
+  const panel = header?.querySelector<HTMLElement>('[data-panel]');
+  button?.addEventListener('click', () => {
+    const open = button.getAttribute('aria-expanded') === 'true';
+    button.setAttribute('aria-expanded', String(!open));
+    button.textContent = open ? 'Menu' : 'Close';
+    if (panel) panel.hidden = open;
+  });
+  panel?.addEventListener('click', (e) => {
+    if ((e.target as HTMLElement).closest('a') && button && panel) {
+      button.setAttribute('aria-expanded', 'false');
+      button.textContent = 'Menu';
+      panel.hidden = true;
+    }
+  });
+</script>

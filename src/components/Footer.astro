@@ -1,0 +1,30 @@
+---
+import { site } from '../data/site';
+import { url } from '../lib/site';
+const year = new Date().getFullYear();
+---
+<footer class="footer">
+  <div class="wrap footer__inner">
+    <a class="footer__logo" href={url('/')}>{site.name}</a>
+    <nav aria-label="Footer">
+      <a href={url('/#gallery')}>Gallery</a>
+      <a href={url('/#contact')}>Contact</a>
+      <a href={site.instagram} rel="noopener" target="_blank">Instagram</a>
+    </nav>
+    <p>&copy; {year} {site.name}. All photographs are protected by copyright.</p>
+  </div>
+</footer>
+
+<style>
+  .footer { border-top: 1px solid var(--line); padding: 48px 0; font-size: 12px; color: var(--muted); }
+  .footer__inner { display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: center; }
+  .footer__logo { font: 400 22px/1 var(--serif); color: var(--olive); text-decoration: none; }
+  nav { display: flex; gap: 28px; }
+  nav a { text-decoration: none; color: var(--ink); }
+  nav a:hover { text-decoration: underline; }
+  p { justify-self: end; text-align: right; }
+  @media (max-width: 760px) {
+    .footer__inner { grid-template-columns: 1fr; justify-items: start; }
+    p { justify-self: start; text-align: left; }
+  }
+</style>

@@ -1,0 +1,107 @@
+---
+import { Picture } from 'astro:assets';
+import { hero } from '../data/site';
+import { url } from '../lib/site';
+---
+<section class="hero" aria-label="Introduction" data-hero>
+  <div class="hero__slides">
+    {hero.map((slide, i) => (
+      <Picture
+        src={slide.image}
+        alt={slide.alt}
+        formats={['avif', 'webp']}
+        widths={[800, 1280, 1920, 2400]}
+        sizes="100vw"
+        loading={i === 0 ? 'eager' : 'lazy'}
+        fetchpriority={i === 0 ? 'high' : 'auto'}
+        class:list={['hero__slide', { 'is-active': i === 0 }]}
+        data-slide
+      />
+    ))}
+  </div>
+  <div class="hero__shade" aria-hidden="true"></div>
+  <div class="hero__frame" aria-hidden="true"></div>
+
+  <div class="hero__copy">
+    <p class="hero__eyebrow">Wedding photographer</p>
+    <h1>Wedding photography for the moments you&rsquo;ll keep forever.</h1>
+    <p class="hero__text">
+      Honest, warm and unhurried photographs of your day, made so that years from now you can feel
+      it all over again.
+    </p>
+    <a class="btn" href={url('/#contact')}>Check your date</a>
+  </div>
+
+  <figure class="hero__quote">
+    <span aria-hidden="true">&ldquo;</span>
+    <blockquote>The best photographs are never the posed ones. They are the moments in between.</blockquote>
+  </figure>
+
+  <div class="hero__controls">
+    <span class="hero__count"><b data-current>01</b> / {String(hero.length).padStart(2, '0')}</span>
+    <button type="button" aria-label="Previous photo" data-prev>&larr;</button>
+    <button type="button" aria-label="Next photo" data-next>&rarr;</button>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative; min-height: max(640px, 100svh); color: #fff;
+    display: grid; grid-template-columns: repeat(12, 1fr); align-items: center;
+    padding: 140px var(--gutter) 110px; overflow: hidden; background: #cfc3b3;
+  }
+  .hero__slides { position: absolute; inset: 0; }
+  .hero__slide { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 1.2s ease; }
+  .hero__slide.is-active { opacity: 1; }
+  .hero__shade { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(30,22,14,.55), rgba(30,22,14,.12) 60%, rgba(30,22,14,.2)); }
+  .hero__frame { position: absolute; inset: 18px; border: 1px solid rgba(255,255,255,.6); pointer-events: none; }
+
+  .hero__copy { position: relative; grid-column: 1 / span 6; max-width: 560px; }
+  .hero__eyebrow { font: 300 14px/1 var(--thin); letter-spacing: .32em; text-transform: uppercase; margin-bottom: 26px; }
+  h1 { font-size: clamp(34px, 5vw, 62px); margin-bottom: 22px; }
+  .hero__text { max-width: 420px; font-size: 14px; line-height: 1.8; margin-bottom: 34px; color: rgba(255,255,255,.88); }
+  .hero .btn { background: #fff; color: var(--charcoal); }
+  .hero .btn:hover { background: var(--ochre); color: #fff; }
+
+  .hero__quote { position: relative; grid-column: 9 / span 4; align-self: center; }
+  .hero__quote span { display: block; font: 400 64px/1 var(--serif); color: #d9b97c; margin-bottom: 8px; }
+  blockquote { margin: 0; font: 400 italic 20px/1.5 var(--serif); }
+
+  .hero__controls { position: absolute; right: calc(var(--gutter) + 18px); bottom: 48px; display: flex; align-items: center; gap: 16px; font-size: 12px; letter-spacing: .1em; }
+  .hero__controls button { width: 40px; height: 40px; border: 1px solid rgba(255,255,255,.7); background: transparent; color: #fff; font-size: 16px; cursor: pointer; transition: background .25s, color .25s; }
+  .hero__controls button:hover { background: #fff; color: var(--charcoal); }
+
+  @media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; align-items: end; padding-bottom: 120px; }
+    .hero__copy, .hero__quote { grid-column: 1; max-width: none; }
+    .hero__quote { display: none; }
+    .hero__shade { background: linear-gradient(0deg, rgba(30,22,14,.7), rgba(30,22,14,.15) 70%); }
+    .hero__controls { left: var(--gutter); right: auto; bottom: 36px; }
+  }
+</style>
+
+<script>
+  const root = document.querySelector<HTMLElement>('[data-hero]');
+  if (root) {
+    const slides = [...root.querySelectorAll<HTMLElement>('[data-slide]')];
+    const current = root.querySelector<HTMLElement>('[data-current]');
+    let index = 0;
+    let timer: number | undefined;
+
+    const show = (next: number) => {
+      index = (next + slides.length) % slides.length;
+      slides.forEach((el, i) => el.classList.toggle('is-active', i === index));
+      if (current) current.textContent = String(index + 1).padStart(2, '0');
+    };
+    const restart = () => {
+      window.clearInterval(timer);
+      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        timer = window.setInterval(() => show(index + 1), 6500);
+      }
+    };
+
+    root.querySelector('[data-prev]')?.addEventListener('click', () => { show(index - 1); restart(); });
+    root.querySelector('[data-next]')?.addEventListener('click', () => { show(index + 1); restart(); });
+    restart();
+  }
+</script>

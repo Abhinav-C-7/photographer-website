@@ -1,0 +1,50 @@
+---
+import { Picture } from 'astro:assets';
+import { aboutImages } from '../data/site';
+---
+<section class="about" id="about" aria-labelledby="about-title">
+  <div class="wrap about__grid">
+    <div class="about__text">
+      <span class="index" aria-hidden="true">01</span>
+      <h2 id="about-title">About.</h2>
+      <p>
+        Every wedding has a rhythm of its own: the nervous laughter in the morning, the
+        quiet look across a crowded room, the dancing nobody planned. I photograph all of it as it
+        happens, so the pictures feel like your day and not like a pose.
+      </p>
+      <p>
+        I work calmly and stay close without getting in the way, which means your family relaxes and
+        the real moments show up. Tell me about your wedding and I&rsquo;ll tell you how I would
+        photograph it.
+      </p>
+    </div>
+
+    <div class="about__collage">
+      <Picture class="about__a" src={aboutImages.a} alt="Couple holding hands during the ceremony"
+        formats={['avif', 'webp']} widths={[480, 720, 1000]} sizes="(min-width: 900px) 30vw, 70vw" loading="lazy" />
+      <Picture class="about__b" src={aboutImages.b} alt="Bride adjusting her veil in soft window light"
+        formats={['avif', 'webp']} widths={[320, 480, 800]} sizes="(min-width: 900px) 18vw, 40vw" loading="lazy" />
+      <Picture class="about__c" src={aboutImages.c} alt="Wedding guests laughing together at the reception"
+        formats={['avif', 'webp']} widths={[320, 480, 900]} sizes="(min-width: 900px) 20vw, 50vw" loading="lazy" />
+    </div>
+  </div>
+</section>
+
+<style>
+  .about { padding: clamp(80px, 12vw, 160px) 0; }
+  .about__grid { display: grid; grid-template-columns: 5fr 7fr; gap: clamp(32px, 6vw, 96px); align-items: center; }
+  .about__text .index { margin-bottom: 36px; }
+  h2 { font-size: clamp(38px, 5vw, 56px); margin-bottom: 26px; }
+  .about__text p { max-width: 440px; color: var(--muted); margin-bottom: 18px; }
+
+  .about__collage { position: relative; min-height: clamp(420px, 56vw, 720px); }
+  .about__collage :global(img) { position: absolute; object-fit: cover; }
+  .about__collage :global(.about__a) { right: 0; top: 0; width: 46%; aspect-ratio: 3 / 4; }
+  .about__collage :global(.about__b) { left: 8%; bottom: 0; width: 30%; aspect-ratio: 4 / 5; }
+  .about__collage :global(.about__c) { right: 8%; bottom: -4%; width: 34%; aspect-ratio: 4 / 3; }
+
+  @media (max-width: 760px) {
+    .about__grid { grid-template-columns: 1fr; }
+    .about__collage { min-height: 520px; }
+  }
+</style>

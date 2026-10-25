@@ -1,0 +1,27 @@
+---
+import { Picture } from 'astro:assets';
+import { albums, bandImage } from '../data/site';
+import { url } from '../lib/site';
+const featured = albums[0];
+---
+<section class="band" aria-label="Featured wedding">
+  <Picture src={bandImage} alt="" formats={['avif', 'webp']} widths={[800, 1280, 1920, 2400]} sizes="100vw" loading="lazy" />
+  <div class="band__shade" aria-hidden="true"></div>
+  <div class="band__frame" aria-hidden="true"></div>
+  <div class="band__copy">
+    <p class="band__top">Featured wedding</p>
+    <h2>{featured.couple.replace(' & ', ' and ')}</h2>
+    <p class="band__bottom"><a href={url(`/albums/${featured.slug}/`)}>View the album</a></p>
+  </div>
+</section>
+
+<style>
+  .band { position: relative; min-height: clamp(420px, 70vh, 720px); display: grid; place-items: center; color: #fff; text-align: center; overflow: hidden; }
+  .band :global(img) { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .band__shade { position: absolute; inset: 0; background: rgba(48,30,20,.18); }
+  .band__frame { position: absolute; inset: 20px; border: 1px solid rgba(255,255,255,.75); pointer-events: none; }
+  .band__copy { position: relative; padding: 0 var(--gutter); }
+  .band__top, .band__bottom { font: 300 15px/1 var(--thin); letter-spacing: .38em; text-transform: uppercase; }
+  .band h2 { font: 300 clamp(44px, 9vw, 112px)/1.05 var(--thin); letter-spacing: .06em; margin: 28px 0; }
+  .band__bottom a { text-decoration: none; padding-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,.7); }
+</style>

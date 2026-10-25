@@ -1,0 +1,90 @@
+---
+import { Picture } from 'astro:assets';
+import { albums } from '../data/site';
+import { url } from '../lib/site';
+const years = albums.map((a) => a.year);
+const span = `${Math.min(...years)}/${Math.max(...years)}`;
+---
+<section class="gallery" id="gallery" aria-labelledby="gallery-title">
+  <div class="wrap gallery__head">
+    <span class="index" aria-hidden="true">02</span>
+    <h2 id="gallery-title" class="gallery__ghost">Gallery.</h2>
+  </div>
+
+  <div class="gallery__strip" tabindex="0" role="region" aria-label="Wedding albums, scroll sideways" data-strip>
+    {albums.map((album, i) => (
+      <a class="card" href={url(`/albums/${album.slug}/`)}>
+        <Picture
+          src={album.cover}
+          alt={`${album.couple} wedding photograph`}
+          formats={['avif', 'webp']}
+          widths={[360, 540, 800]}
+          sizes="(min-width: 900px) 30vw, 75vw"
+          loading={i < 2 ? 'eager' : 'lazy'}
+          draggable="false"
+        />
+        <span class="card__title">{album.couple}</span>
+        <span class="card__meta">({album.place})</span>
+      </a>
+    ))}
+  </div>
+
+  <div class="wrap gallery__foot">
+    <span>Albums &mdash; {span}</span>
+    <span>(Scroll)</span>
+  </div>
+</section>
+
+<style>
+  .gallery { padding: 0 0 clamp(80px, 10vw, 140px); overflow: hidden; }
+  .gallery__head { display: flex; flex-direction: column; align-items: flex-start; gap: 0; }
+  .gallery__ghost {
+    font-weight: 400; font-size: clamp(88px, 17vw, 240px); line-height: .9;
+    color: var(--ghost); letter-spacing: -.01em; margin-bottom: clamp(-52px, -4.2vw, -20px);
+    position: relative; z-index: 0;
+  }
+  .gallery__head .index { margin-bottom: 18px; }
+
+  .gallery__strip {
+    position: relative; z-index: 1; display: flex; gap: clamp(16px, 2vw, 28px);
+    --edge: max(var(--gutter), calc((100% - var(--max)) / 2));
+    padding: 0 var(--edge) 8px; overflow-x: auto; scroll-snap-type: x proximity;
+    scrollbar-width: none; scroll-padding-inline: var(--edge); cursor: grab; -webkit-overflow-scrolling: touch;
+  }
+  .gallery__strip::-webkit-scrollbar { display: none; }
+  .gallery__strip.is-dragging { cursor: grabbing; scroll-snap-type: none; }
+
+  .card { flex: 0 0 clamp(250px, 29vw, 400px); scroll-snap-align: start; text-decoration: none; display: block; }
+  .card :global(picture) { display: block; }
+  .card :global(img) { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; transition: opacity .3s; }
+  .card:hover :global(img) { opacity: .88; }
+  .card__title, .card__meta { display: block; font-size: 13px; line-height: 1.45; }
+  .card__title { margin-top: 12px; }
+  .card__meta { color: var(--muted); }
+
+  .gallery__foot { display: flex; justify-content: space-between; margin-top: 52px; font-size: 13px; }
+</style>
+
+<script>
+  const strip = document.querySelector<HTMLElement>('[data-strip]');
+  if (strip) {
+    let down = false, moved = false, startX = 0, startLeft = 0;
+    strip.addEventListener('pointerdown', (e) => {
+      if (e.pointerType !== 'mouse') return;
+      down = true; moved = false; startX = e.clientX; startLeft = strip.scrollLeft;
+    });
+    window.addEventListener('pointermove', (e) => {
+      if (!down) return;
+      const dx = e.clientX - startX;
+      if (Math.abs(dx) > 4) { moved = true; strip.classList.add('is-dragging'); }
+      strip.scrollLeft = startLeft - dx;
+    });
+    window.addEventListener('pointerup', () => { down = false; strip.classList.remove('is-dragging'); });
+    // Don't follow a link when the gesture was a drag.
+    strip.addEventListener('click', (e) => { if (moved) { e.preventDefault(); moved = false; } }, true);
+    strip.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') strip.scrollBy({ left: 320, behavior: 'smooth' });
+      if (e.key === 'ArrowLeft') strip.scrollBy({ left: -320, behavior: 'smooth' });
+    });
+  }
+</script>
