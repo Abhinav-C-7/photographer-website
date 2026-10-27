@@ -11,7 +11,7 @@ Design is based on Mobbin references: ETERNO (hero, about, ghost "Gallery." head
 | Command | What it does |
 | --- | --- |
 | `npm install` | Install dependencies |
-| `npm run dev` | Dev server at http://localhost:4321/photographer-website/ |
+| `npm run dev` | Dev server at http://localhost:4321/ |
 | `npm run build` | Production build into `dist/` |
 | `npm run placeholders:silhouettes` | Draw silhouette placeholders for any missing photo (`-- --force` overwrites) |
 
@@ -23,9 +23,12 @@ Design is based on Mobbin references: ETERNO (hero, about, ghost "Gallery." head
 3. **Contact form:** create a free form at formspree.io and put its URL in `formAction` in `src/data/site.ts`.
 4. **Alt text:** update the descriptions in `src/data/site.ts`, `About.astro` and `Hero.astro` to describe the real photos.
 
-## Deploy (GitHub Pages)
+## Deploy (Vercel)
 
-Repo Settings > Pages > Source: **GitHub Actions**. Every push to `main` deploys via `.github/workflows/deploy.yml`.
+1. Go to https://vercel.com/new, sign in with GitHub and import `Abhinav-C-7/photographer-website`.
+2. Vercel detects Astro automatically. Keep the defaults and click **Deploy**.
+3. Every push to `main` redeploys the site.
 
-With a custom domain, set `SITE_URL=https://yourdomain.com` and `SITE_BASE=/` for the build, and update the
-`Sitemap:` line in `public/robots.txt`.
+Custom domain: in the Vercel project open **Settings > Domains**, add `bijithphotography.in`, follow the DNS
+instructions, then add the environment variable `SITE_URL=https://bijithphotography.in` and redeploy so canonical
+links, the sitemap and `robots.txt` use the domain.
