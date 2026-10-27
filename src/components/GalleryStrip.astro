@@ -4,34 +4,43 @@ import { albums } from '../data/site';
 import { url } from '../lib/site';
 const years = albums.map((a) => a.year);
 const span = `${Math.min(...years)}/${Math.max(...years)}`;
+// The albums are rendered twice so the auto-scroll can loop seamlessly;
+// the second copy is hidden from screen readers and keyboard focus.
+const sets = [false, true];
 ---
-<section class="gallery" id="gallery" aria-labelledby="gallery-title">
+<section class="gallery" id="gallery" aria-labelledby="gallery-title" data-gallery>
   <div class="wrap gallery__head">
     <span class="index" aria-hidden="true">02</span>
     <h2 id="gallery-title" class="gallery__ghost">Gallery.</h2>
   </div>
 
   <div class="gallery__strip" tabindex="0" role="region" aria-label="Wedding albums, scroll sideways" data-strip>
-    {albums.map((album, i) => (
-      <a class="card" href={url(`/albums/${album.slug}/`)}>
+    {sets.map((clone) => albums.map((album, i) => (
+      <a
+        class="card"
+        href={url(`/albums/${album.slug}/`)}
+        data-card={clone ? 'clone' : 'original'}
+        aria-hidden={clone ? 'true' : undefined}
+        tabindex={clone ? -1 : undefined}
+      >
         <Picture
           src={album.cover}
           alt={`${album.couple} wedding photograph`}
           formats={['avif', 'webp']}
           widths={[360, 540, 800]}
           sizes="(min-width: 900px) 30vw, 75vw"
-          loading={i < 2 ? 'eager' : 'lazy'}
+          loading={!clone && i < 3 ? 'eager' : 'lazy'}
           draggable="false"
         />
         <span class="card__title">{album.couple}</span>
         <span class="card__meta">({album.place})</span>
       </a>
-    ))}
+    )))}
   </div>
 
   <div class="wrap gallery__foot">
     <span>Albums &mdash; {span}</span>
-    <span>(Scroll)</span>
+    <button type="button" class="gallery__toggle" aria-label="Pause the moving gallery" data-toggle>(Pause)</button>
   </div>
 </section>
 
@@ -48,13 +57,13 @@ const span = `${Math.min(...years)}/${Math.max(...years)}`;
   .gallery__strip {
     position: relative; z-index: 1; display: flex; gap: clamp(16px, 2vw, 28px);
     --edge: max(var(--gutter), calc((100% - var(--max)) / 2));
-    padding: 0 var(--edge) 8px; overflow-x: auto; scroll-snap-type: x proximity;
-    scrollbar-width: none; scroll-padding-inline: var(--edge); cursor: grab; -webkit-overflow-scrolling: touch;
+    padding: 0 var(--edge) 8px; overflow-x: auto;
+    scrollbar-width: none; cursor: grab; -webkit-overflow-scrolling: touch;
   }
   .gallery__strip::-webkit-scrollbar { display: none; }
-  .gallery__strip.is-dragging { cursor: grabbing; scroll-snap-type: none; }
+  .gallery__strip.is-dragging { cursor: grabbing; }
 
-  .card { flex: 0 0 clamp(250px, 29vw, 400px); scroll-snap-align: start; text-decoration: none; display: block; }
+  .card { flex: 0 0 clamp(250px, 29vw, 400px); text-decoration: none; display: block; }
   .card :global(picture) { display: block; }
   .card :global(img) { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; transition: opacity .3s; }
   .card:hover :global(img) { opacity: .88; }
@@ -63,28 +72,95 @@ const span = `${Math.min(...years)}/${Math.max(...years)}`;
   .card__meta { color: var(--muted); }
 
   .gallery__foot { display: flex; justify-content: space-between; margin-top: 52px; font-size: 13px; }
+  .gallery__toggle { background: none; border: 0; padding: 0; font: inherit; color: inherit; cursor: pointer; }
+  .gallery__toggle:hover { text-decoration: underline; text-underline-offset: 4px; }
 </style>
 
 <script>
-  const strip = document.querySelector<HTMLElement>('[data-strip]');
-  if (strip) {
-    let down = false, moved = false, startX = 0, startLeft = 0;
+  const section = document.querySelector<HTMLElement>('[data-gallery]');
+  const strip = section?.querySelector<HTMLElement>('[data-strip]');
+  const toggle = section?.querySelector<HTMLButtonElement>('[data-toggle]');
+
+  if (section && strip && toggle) {
+    const SPEED = 38; // pixels per second
+    const RESUME_AFTER = 2500; // ms of no interaction before drifting again
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    let playing = !reduceMotion;
+    let hovering = false, focused = false, onScreen = true, dragging = false;
+    let lastInteraction = -Infinity, pos = 0, loop = 0, last = 0;
+
+    const measure = () => {
+      const first = strip.querySelector<HTMLElement>('[data-card="original"]');
+      const clone = strip.querySelector<HTMLElement>('[data-card="clone"]');
+      loop = first && clone ? clone.offsetLeft - first.offsetLeft : 0;
+    };
+    const wrap = () => {
+      if (loop > 0 && strip.scrollLeft >= loop) strip.scrollLeft -= loop;
+      pos = strip.scrollLeft;
+    };
+    const touched = () => { lastInteraction = performance.now(); };
+    const setPlaying = (value: boolean) => {
+      playing = value;
+      toggle.textContent = playing ? '(Pause)' : '(Play)';
+      toggle.setAttribute('aria-label', playing ? 'Pause the moving gallery' : 'Play the moving gallery');
+    };
+
+    const tick = (now: number) => {
+      const dt = last ? Math.min(now - last, 64) / 1000 : 0;
+      last = now;
+      const idle = now - lastInteraction > RESUME_AFTER;
+      if (playing && idle && !hovering && !focused && !dragging && onScreen && !document.hidden && loop > 0) {
+        pos += SPEED * dt;
+        if (pos >= loop) pos -= loop;
+        strip.scrollLeft = pos;
+      }
+      requestAnimationFrame(tick);
+    };
+
+    // Any scroll we didn't cause (swipe, trackpad, keys, drag) counts as interaction.
+    strip.addEventListener('scroll', () => {
+      if (Math.abs(strip.scrollLeft - pos) > 2) { touched(); wrap(); }
+    }, { passive: true });
+
+    strip.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') hovering = true; });
+    strip.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') hovering = false; });
+    strip.addEventListener('touchstart', touched, { passive: true });
+    strip.addEventListener('touchend', touched, { passive: true });
+    // Pause while a keyboard user is focused inside the strip (not on the Play/Pause button).
+    strip.addEventListener('focusin', (e) => { focused = (e.target as HTMLElement).matches(':focus-visible'); });
+    strip.addEventListener('focusout', () => { focused = false; });
+    toggle.addEventListener('click', () => setPlaying(!playing));
+
+    new IntersectionObserver(([entry]) => { onScreen = entry.isIntersecting; }).observe(strip);
+    window.addEventListener('resize', () => { measure(); wrap(); });
+    window.addEventListener('load', measure);
+
+    // Mouse drag to scroll.
+    let moved = false, startX = 0, startLeft = 0;
     strip.addEventListener('pointerdown', (e) => {
       if (e.pointerType !== 'mouse') return;
-      down = true; moved = false; startX = e.clientX; startLeft = strip.scrollLeft;
+      dragging = true; moved = false; startX = e.clientX; startLeft = strip.scrollLeft;
     });
     window.addEventListener('pointermove', (e) => {
-      if (!down) return;
+      if (!dragging) return;
       const dx = e.clientX - startX;
       if (Math.abs(dx) > 4) { moved = true; strip.classList.add('is-dragging'); }
       strip.scrollLeft = startLeft - dx;
     });
-    window.addEventListener('pointerup', () => { down = false; strip.classList.remove('is-dragging'); });
+    window.addEventListener('pointerup', () => {
+      if (!dragging) return;
+      dragging = false; strip.classList.remove('is-dragging'); touched(); wrap();
+    });
     // Don't follow a link when the gesture was a drag.
     strip.addEventListener('click', (e) => { if (moved) { e.preventDefault(); moved = false; } }, true);
     strip.addEventListener('keydown', (e) => {
       if (e.key === 'ArrowRight') strip.scrollBy({ left: 320, behavior: 'smooth' });
       if (e.key === 'ArrowLeft') strip.scrollBy({ left: -320, behavior: 'smooth' });
     });
+
+    measure();
+    setPlaying(playing);
+    requestAnimationFrame(tick);
   }
 </script>
