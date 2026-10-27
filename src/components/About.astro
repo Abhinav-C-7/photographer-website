@@ -17,14 +17,18 @@ import { aboutImages } from '../data/site';
         the real moments show up. Tell me about your wedding and I&rsquo;ll tell you how I would
         photograph it.
       </p>
+      <figure class="about__quote">
+        <span aria-hidden="true">&ldquo;</span>
+        <blockquote>The best photographs are never the posed ones. They are the moments in between.</blockquote>
+      </figure>
     </div>
 
     <div class="about__collage">
-      <Picture class="about__a" src={aboutImages.a} alt="Couple holding hands during the ceremony"
+      <Picture class="about__a" src={aboutImages.a} alt="Groom embracing the bride outdoors"
         formats={['avif', 'webp']} widths={[480, 720, 1000]} sizes="(min-width: 900px) 30vw, 70vw" loading="lazy" />
-      <Picture class="about__b" src={aboutImages.b} alt="Bride adjusting her veil in soft window light"
+      <Picture class="about__b" src={aboutImages.b} alt="Bride holding a colourful bouquet"
         formats={['avif', 'webp']} widths={[320, 480, 800]} sizes="(min-width: 900px) 18vw, 40vw" loading="lazy" />
-      <Picture class="about__c" src={aboutImages.c} alt="Wedding guests laughing together at the reception"
+      <Picture class="about__c" src={aboutImages.c} alt="Wedding rings resting in the bride's hands"
         formats={['avif', 'webp']} widths={[320, 480, 900]} sizes="(min-width: 900px) 20vw, 50vw" loading="lazy" />
     </div>
   </div>
@@ -36,6 +40,10 @@ import { aboutImages } from '../data/site';
   .about__text .index { margin-bottom: 36px; }
   h2 { font-size: clamp(38px, 5vw, 56px); margin-bottom: 26px; }
   .about__text p { max-width: 440px; color: var(--muted); margin-bottom: 18px; }
+
+  .about__quote { margin-top: 40px; max-width: 400px; }
+  .about__quote span { display: block; font: 400 56px/.8 var(--serif); color: var(--ochre); margin-bottom: 6px; }
+  .about__quote blockquote { margin: 0; font: 400 italic 20px/1.5 var(--serif); color: var(--ink); }
 
   .about__collage { position: relative; min-height: clamp(420px, 56vw, 720px); }
   .about__collage :global(img) { position: absolute; object-fit: cover; }

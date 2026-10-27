@@ -32,9 +32,9 @@ export const site = {
 };
 
 export const hero = [
-  { image: hero1, alt: 'Wedding couple sharing a quiet moment in soft morning light' },
-  { image: hero2, alt: 'Bride laughing with her family before the ceremony' },
-  { image: hero3, alt: 'Couple walking together through a garden at golden hour' },
+  { image: hero1, alt: 'Bride and groom sitting together by a lake at sunset', focus: '68% 60%' },
+  { image: hero2, alt: 'Couple smiling close together in a field at sunset', focus: '58% 40%' },
+  { image: hero3, alt: 'Bride and groom walking hand in hand through the woods', focus: '76% 70%' },
 ];
 
 export const aboutImages = { a: about1, b: about2, c: about3 };

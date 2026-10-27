@@ -3,6 +3,9 @@
 // JPGs using the same names (any size) and everything updates automatically.
 import sharp from 'sharp';
 import { mkdir } from 'node:fs/promises';
+import { existsSync } from 'node:fs';
+
+const force = process.argv.includes('--force');
 
 const out = new URL('../src/assets/photos/', import.meta.url).pathname;
 await mkdir(out, { recursive: true });
@@ -286,6 +289,7 @@ const images = [
 for (const [name, w, h, draw] of images) {
   seed = name.split('').reduce((a, ch) => a + ch.charCodeAt(0) * 31, 7);
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">${draw(w, h)}${finish(w, h)}</svg>`;
+  if (existsSync(`${out}${name}.jpg`) && !force) { console.log(`skip ${name}.jpg (exists; pass --force to overwrite)`); continue; }
   await sharp(Buffer.from(svg)).jpeg({ quality: 84, mozjpeg: true }).toFile(`${out}${name}.jpg`);
 }
 
@@ -293,6 +297,6 @@ for (const [name, w, h, draw] of images) {
 const og = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630">${sunsetField(1200, 630, .78)}${finish(1200, 630)}
   <text x="90" y="300" font-family="Georgia, serif" font-size="88" fill="#fff">bijith.now</text>
   <text x="94" y="360" font-family="Georgia, serif" font-size="24" letter-spacing="8" fill="#fff">WEDDING PHOTOGRAPHY</text></svg>`;
-await sharp(Buffer.from(og)).jpeg({ quality: 88 }).toFile(new URL('../public/og-default.jpg', import.meta.url).pathname);
+if (force) await sharp(Buffer.from(og)).jpeg({ quality: 88 }).toFile(new URL('../public/og-default.jpg', import.meta.url).pathname);
 
 console.log(`wrote ${images.length} placeholders`);

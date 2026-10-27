@@ -15,6 +15,7 @@ import { url } from '../lib/site';
         loading={i === 0 ? 'eager' : 'lazy'}
         fetchpriority={i === 0 ? 'high' : 'auto'}
         class:list={['hero__slide', { 'is-active': i === 0 }]}
+        style={`object-position: ${slide.focus}`}
         data-slide
       />
     ))}
@@ -31,11 +32,6 @@ import { url } from '../lib/site';
     </p>
     <a class="btn" href={url('/#contact')}>Check your date</a>
   </div>
-
-  <figure class="hero__quote">
-    <span aria-hidden="true">&ldquo;</span>
-    <blockquote>The best photographs are never the posed ones. They are the moments in between.</blockquote>
-  </figure>
 
   <div class="hero__controls">
     <span class="hero__count"><b data-current>01</b> / {String(hero.length).padStart(2, '0')}</span>
@@ -63,9 +59,6 @@ import { url } from '../lib/site';
   .hero .btn { background: #fff; color: var(--charcoal); }
   .hero .btn:hover { background: var(--ochre); color: #fff; }
 
-  .hero__quote { position: relative; grid-column: 9 / span 4; align-self: center; }
-  .hero__quote span { display: block; font: 400 64px/1 var(--serif); color: #d9b97c; margin-bottom: 8px; }
-  blockquote { margin: 0; font: 400 italic 20px/1.5 var(--serif); }
 
   .hero__controls { position: absolute; right: calc(var(--gutter) + 18px); bottom: 48px; display: flex; align-items: center; gap: 16px; font-size: 12px; letter-spacing: .1em; }
   .hero__controls button { width: 40px; height: 40px; border: 1px solid rgba(255,255,255,.7); background: transparent; color: #fff; font-size: 16px; cursor: pointer; transition: background .25s, color .25s; }
@@ -73,8 +66,7 @@ import { url } from '../lib/site';
 
   @media (max-width: 900px) {
     .hero { grid-template-columns: 1fr; align-items: start; padding-top: 112px; }
-    .hero__copy, .hero__quote { grid-column: 1; max-width: none; }
-    .hero__quote { display: none; }
+    .hero__copy { grid-column: 1; max-width: none; }
     .hero__eyebrow { margin-bottom: 18px; }
     h1 { font-size: 31px; }
     .hero__text { font-size: 13px; margin-bottom: 24px; }

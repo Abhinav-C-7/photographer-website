@@ -13,11 +13,12 @@ Design is based on Mobbin references: ETERNO (hero, about, ghost "Gallery." head
 | `npm install` | Install dependencies |
 | `npm run dev` | Dev server at http://localhost:4321/photographer-website/ |
 | `npm run build` | Production build into `dist/` |
-| `npm run placeholders` | Regenerate the placeholder images |
+| `npm run placeholders:silhouettes` | Draw silhouette placeholders for any missing photo (`-- --force` overwrites) |
 
 ## Replace placeholder content
 
-1. **Photos:** overwrite the files in `src/assets/photos/` with real JPGs using the same names.
+1. **Photos:** the current photos are CC0 stand-ins (see `CREDITS.md`). Overwrite the files in `src/assets/photos/`
+   with bijith.now's own JPGs using the same names, then delete `CREDITS.md`.
 2. **Names, email, Instagram, albums:** edit `src/data/site.ts`.
 3. **Contact form:** create a free form at formspree.io and put its URL in `formAction` in `src/data/site.ts`.
 4. **Alt text:** update the descriptions in `src/data/site.ts`, `About.astro` and `Hero.astro` to describe the real photos.
